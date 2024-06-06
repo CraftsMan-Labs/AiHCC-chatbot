@@ -1,5 +1,6 @@
 gradio
+langchain
 openai
 python-dotenv
-scrapegraphai
-playwright
+agentic-reports
+exa_py

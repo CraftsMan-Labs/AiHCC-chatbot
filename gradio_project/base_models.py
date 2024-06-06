@@ -9,19 +9,6 @@ class MergedSurvey(BaseModel):
     position: Optional[str] = Field(description="Position of the user, CEO, CTO, CIO, Founder or if others please specify")
 
     # General Problem Identification
-    skills: Optional[str] = Field(description="""* Not identifying the right AI use cases for our business
-* Not having access to skilled AI professionals
-* Lack of understanding of AI technologies and their potential
-* Struggling with integrating AI into existing processes
-* Difficulty in managing AI projects and timelines
-* Wasting resources on AI projects that don’t deliver ROI
-* Not getting enough internal support for AI initiatives
-* Struggling with data quality and quantity for AI models
-* Difficulty in scaling AI solutions
-* Not effectively responding to RFPs/RFQs for AI projects
-* Overcoming concerns about AI costs and ROI""")
-    skill_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
     staff: Optional[str] = Field(description="""* Hiring AI experts who don’t fit into the team
 * Difficulty in upskilling current employees to work with AI
 * High turnover rates among AI specialists
@@ -33,14 +20,6 @@ class MergedSurvey(BaseModel):
 * Lack of effective leadership in AI projects
 * Potential issues if key AI personnel leave the company""")
     staff_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
-    structuring: Optional[str] = Field(description="""* Lack of a clear AI strategy
-* Unclear accountability for AI projects
-* Ineffective AI project management structure
-* Lack of systems and processes for managing AI initiatives
-* AI managers not having systems for pre-implementation strategy and post-implementation review
-* No regular training or role-playing for AI-related scenarios""")
-    structuring_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
 
     strategies: Optional[str] = Field(description="""* Not having a clear AI adoption roadmap
 * Ineffective strategies for integrating AI into business operations
@@ -67,26 +46,6 @@ class MergedSurvey(BaseModel):
 * Ensuring data readiness and quality for AI applications
 * Responding effectively to competitive AI-driven RFPs/RFQs""")
     strategic_leadership_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
-    talent_management: Optional[str] = Field(description="""* Recruiting AI experts who deliver results
-* Upskilling the current workforce for AI readiness
-* Retaining high-performing AI specialists
-* Defining clear career paths and growth opportunities in AI
-* Bridging collaboration between AI teams and other departments
-* Finding and empowering AI project leaders
-* Managing workload and resources for AI teams
-* Maintaining high performance standards in AI roles
-* Developing effective leadership for AI-driven projects
-* Mitigating risks if key AI personnel leave""")
-    talent_management_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
-    operational_excellence: Optional[str] = Field(description="""* Establishing a clear and actionable AI strategy
-* Defining accountability and ownership for AI initiatives
-* Implementing an efficient AI project management structure
-* Developing robust systems and processes for AI management
-* Conducting strategic planning and reviews for AI projects
-* Providing regular training and scenario planning for AI-related challenges""")
-    operational_excellence_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
 
     competitive_advantage: Optional[str] = Field(description="""* Developing a clear AI adoption roadmap aligned with business goals
 * Executing strategies for effective AI integration
@@ -124,14 +83,6 @@ class MergedSurvey(BaseModel):
 * Managing contingencies for the potential departure of key AI personnel""")
     talent_resource_and_management_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
 
-    process_and_system_efficiency: Optional[str] = Field(description="""* Defining a comprehensive AI strategy with detailed action plans
-* Establishing clear accountability and ownership for AI projects
-* Implementing a structured AI project management framework
-* Developing systematic processes for AI deployment and maintenance
-* Conducting thorough pre-implementation and post-implementation reviews
-* Ensuring regular and detailed training for AI-related scenarios""")
-    process_and_system_efficiency_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
     innovation_and_differentiation: Optional[str] = Field(description="""* Creating a precise AI adoption roadmap aligned with IT objectives
 * Executing detailed strategies for seamless AI integration
 * Differentiating our AI solutions through technical excellence
@@ -156,18 +107,6 @@ class MergedSurvey(BaseModel):
 * Responding effectively to AI-related RFPs/RFQs to maintain competitive edge""")
     strategic_clarity_and_alignment_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
 
-    building_and_nurturing_talent: Optional[str] = Field(description="""* Recruiting AI experts who fit our company culture and values
-* Investing in upskilling our team to be proficient with AI technologies
-* Retaining top AI talent by creating a supportive and growth-oriented environment
-* Defining clear career paths and growth opportunities for AI professionals
-* Facilitating effective collaboration between AI teams and other departments
-* Identifying and empowering leaders within our AI initiatives
-* Allocating resources wisely to support our AI projects
-* Maintaining high performance standards without sacrificing our core values
-* Developing strong leadership within AI-driven projects
-* Managing the risk if key AI personnel leave, ensuring continuity""")
-    building_and_nurturing_talent_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
-
     process_optimization_and_efficiency: Optional[str] = Field(description="""* Establishing a clear, principled AI strategy
 * Defining accountability and ownership for AI initiatives
 * Implementing a structured and disciplined AI project management framework
@@ -187,6 +126,32 @@ class MergedSurvey(BaseModel):
 * Demonstrating the unique value of our AI solutions to prevent commoditization""")
     competitive_differentiation_and_growth_rating: Optional[int] = Field(description="Rating of the problem on a scale of 1 to 5 where 1 is the least and 5 is the most")
 
-    additional_comments: Optional[str] = Field(description="Any additional comments")
 
-print(MergedSurvey.schema_json())
+# {
+#   "query": "string",  // The main topic for the report
+#   "primary_prompt": "string",  // The primary prompt for the report generation
+#   "subqueries_prompt": "string",  // The prompt for generating subqueries
+#   "report_prompt": "string",  // The detailed prompt for generating the final report
+#   "start_published_date": "string (YYYY-MM-DD)",  // Optional: The start date for filtering published articles
+#   "end_published_date": "string (YYYY-MM-DD)",  // Optional: The end date for filtering published articles
+#   "include_domains": ["string"],  // Optional: Domains to include in the search
+#   "exclude_domains": ["string"],  // Optional: Domains to exclude from the search
+#   "highlights": {
+#     "num_sentences": "int"  // Optional: Parameters for highlighting text
+#   },
+#   "text": {
+#     "include_html_tags": "boolean"  // Optional: Parameters for including HTML tags in the text
+#   },
+#   "num_subqueries": "int",  // The number of subqueries to generate
+#   "batch_size": "int"  // Optional: The size of each batch for processing subqueries
+# }
+
+class search_internet(BaseModel):
+    query: Optional[str] = Field(description="The main topic for the report")
+    primary_prompt: Optional[str] = Field(description="Primary prompt for the report generation or the user query")
+    subqueries_prompt: Optional[str] = Field(description="Create a sub query which can help in giving a diverse set of results for the main query")
+    report_prompt: Optional[str] = Field(description="Write a comprehensive and professional in English, five-paragraph, 200-word research report about the given topic.")
+    start_published_date: Optional[str] = Field(description="The start date for filtering published articles like 2024-01-01")
+    end_published_date: Optional[str] = Field(description="The end date for filtering published articles like 2024-06-03")
+    include_domains: Optional[List[str]] = Field(description="Domains to include in the search like when searching company websites")
+    num_subqueries: Optional[int] = Field(description="The size of each batch for processing subqueries default is 3")
