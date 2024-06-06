@@ -13,56 +13,113 @@ from langchain.agents import AgentExecutor, initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 from langchain_community.callbacks import get_openai_callback
 from langchain_core.pydantic_v1 import BaseModel, Field
-from scrapegraphai.graphs import SmartScraperGraph, OmniScraperGraph
 import os
 import json
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents import create_tool_calling_agent
 from dotenv import load_dotenv
-
+from exa_py import Exa
+from datetime import datetime, timedelta
+import openai
 load_dotenv()
-
-# subprocess.run(["pip", "install", "--upgrade", "scrapegraphai"])
-subprocess.run(["apt", "install", "chromium-chromedriver"])
-subprocess.run(["pip", "install", "nest_asyncio"])
-subprocess.run(["playwright", "install"])
 
 global collected_data
 collected_data = {}
 
+exa = Exa(os.getenv('EXA_API_KEY'))
 
-@tool
-def scrape_website(domain: str) -> str:
-    """Scrape the website to gather information. It can also be used or github or any URL"""
-    graph_config = {
-        "llm": {
-            "api_key": os.getenv("OPENAI_API_KEY"),
-            "model": "gpt-3.5-turbo",
-            "temperature": 0,
-        },
-        "verbose": False,
-        "headless": False
+def create_custom_function(num_subqueries):
+    properties = {}
+    for i in range(1, num_subqueries + 1):
+        key = f'subquery_{i}'
+        properties[key] = {
+            'type': 'string',
+            'description': 'Search queries that would be useful for generating a report on my main topic'
+        }
+
+    custom_function = {
+        'name': 'generate_exa_search_queries',
+        'description': 'Generates Exa search queries to investigate the main topic',
+        'parameters': {
+            'type': 'object',
+            'properties': properties
+        }
     }
-    smart_scraper_graph = SmartScraperGraph(
-        prompt="List me all the details about this website like projects, products what they do customers with their descriptions.",
-        source=domain,
-        config=graph_config
-    )
-    result = smart_scraper_graph.run()
-    output = json.dumps(result, indent=2)
-    return output
 
+    return [custom_function]
+
+def generate_subqueries_from_topic(topic, num_subqueries=6):
+    print(f" ")
+    print(f"🌿 Generating subqueries from topic: {topic}")
+    content = f"I'm going to give you a topic I want to research. I want you to generate {num_subqueries} interesting, diverse search queries that would be useful for generating a report on my main topic. Here is the main topic: {topic}."
+    custom_functions = create_custom_function(num_subqueries)
+    completion = openai.chat.completions.create(
+        model='gpt-4o',
+        messages=[{"role": "user", "content": content}],
+        temperature=0,
+        functions=custom_functions,
+        function_call='auto'
+    )
+    json_response = json.loads(completion.choices[0].message.function_call.arguments)
+    subqueries = list(json_response.values())
+    return subqueries
+
+def exa_search_each_subquery(subqueries):
+    print(f"")
+    print(f"⌛ Searching each subquery")
+    list_of_query_exa_pairs = []
+    one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    for query in subqueries:
+        search_response = exa.search_and_contents(
+            query,
+            num_results=5,
+            use_autoprompt=True,
+            start_published_date=one_week_ago,
+            text=True,
+            highlights={"num_sentences": 5},
+        )
+        query_object = {
+            'subquery': query,
+            'results': search_response.results
+        }
+        list_of_query_exa_pairs.append(query_object)
+    return list_of_query_exa_pairs
+
+def format_exa_results_for_llm(list_of_query_exa_pairs):
+    print(f"")
+    print(f"⌨️  Formatting Exa results for LLM")
+    formatted_string = ""
+    for i in list_of_query_exa_pairs:
+        formatted_string += f"[{i['subquery']}]:\n"
+        for result in i['results']:
+            content = result.text if result.text else " ".join(result.highlights)
+            publish_date = result.published_date
+            formatted_string += f"URL: {result.url}\nContent: {content}\nPublish Date: {publish_date}\n"
+        formatted_string += "\n"
+    return formatted_string
+
+def generate_report_from_exa_results(topic, list_of_query_exa_pairs):
+    print(f"Generating report from Exa results for topic: {topic}")
+    formatted_exa_content = format_exa_results_for_llm(list_of_query_exa_pairs)
+    content = (f"Write a comprehensive and professional three paragraph research report about {topic} based on the provided information. "
+               f"Include citations in the text using footnote notation ([citation #]), for example [2]. First provide the report, followed by a single `References` section "
+               f"that only lists the URLs (and their published date) used, in the format [#] . For the published date, only include the month and year. "
+               f"Reset the citations index and ignore the order of citations in the provided information. Here is the information: {formatted_exa_content}.")
+    completion = openai.chat.completions.create(
+        model='gpt-4o',
+        messages=[{"role": "user", "content": content}]
+    )
+    report = completion.choices[0].message.content
+    return report
 
 @tool
 def search_internet(query: str) -> str:
     """Scrape the website to gather information. It can also be used or github or any URL"""
-    smart_scraper_graph = OmniScraperGraph(
-        prompt=f"Search for user query in the internet: {query}",
-        config=graph_config
-    )
-    result = smart_scraper_graph.run()
-    output = json.dumps(result, indent=2)
-    return output
+    print(f"Starting report generation for topic: {query}")
+    subqueries = generate_subqueries_from_topic(query)
+    list_of_query_exa_pairs = exa_search_each_subquery(subqueries)
+    report = generate_report_from_exa_results(query, list_of_query_exa_pairs)
+    return report
 
 
 @tool
@@ -84,10 +141,14 @@ class consultant_bot(object):
             model=self.model_name, temperature=self.temperature)
         self.system_prompt = """Role: AI Consultant (Piper)
 Introduction:
+When starting the conversation introduce yourself and ask for the user's name.
+You are an AI Consultant, from AI Hackerspace and you are here to help the user.
+TO check more projects https://github.com/ruvnet the leader of this collective
 Greet as Piper, an AI SDR.
 Ask for the user's first name and how they found us.
 Request the company's domain name to review their website.
-Search for the company's website using the scrape_domain tool.
+Based on that talk with customer and gather requirements.
+Search for the company's details using search_internet.
 Ask the user to describe their problem and gather requirements.
 The problems could be as follows:
 upskills their team
@@ -97,7 +158,7 @@ imporove their strategies
 strategic_leadership
 talent_management"""
         self.chat_history.append(SystemMessage(content=self.system_prompt))
-        self.tools = [gather_requirements, scrape_website, search_internet]
+        self.tools = [gather_requirements, search_internet]
         self.prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate(
                 prompt=PromptTemplate(input_variables=[], template=self.system_prompt)),
@@ -146,7 +207,8 @@ with gr.Blocks() as demo:
         with gr.Column(scale=3):
             chat_interface = gr.ChatInterface(
                 fn=chat,
-                examples=["I am looking for some help in Building AI products"],
+                examples=["I am looking for some help in Building AI products", "I need someone to help me with my AI project",
+                          "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
                 title="AI consultant chatbot",
             )
         with gr.Column(scale=1):
