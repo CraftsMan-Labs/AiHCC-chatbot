@@ -5,7 +5,7 @@ from data_storage import data_storage
 
 def main():
     config, hf_api_key, openai_api_key, groq_api_key, model_choice, search_engine, exa_api_key = config_sidebar()
-    chat, system_prompt, slider, chat_interface_ = chat_interface()
+    chat, _ = chat_interface()
     data, collected_data = data_storage()
 
     with gr.Blocks() as demo:

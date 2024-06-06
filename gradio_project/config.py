@@ -1,8 +1,5 @@
 import gradio as gr
 
-def update_visibility(choice):
-    return gr.Textbox.update(visible=(choice == 'Exa AI'), interactive=True)
-
 def config_sidebar():
     with gr.Blocks() as config:
         with gr.Accordion('Configuration', open=False):
@@ -15,5 +12,4 @@ def config_sidebar():
             with gr.Row():
                 search_engine = gr.Dropdown(choices=['DuckDuckGo', 'Exa AI'], label='Select Search Engine')
                 exa_api_key = gr.Textbox(label='Exa AI API Key', placeholder='Enter your Exa AI API Key if you are using Exa', visible=True)
-            search_engine.change(fn=update_visibility, inputs=search_engine, outputs=exa_api_key)
     return config, hf_api_key, openai_api_key, groq_api_key, model_choice, search_engine, exa_api_key
