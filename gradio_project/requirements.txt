@@ -1,2 +1,5 @@
 gradio
 openai
+python-dotenv
+scrapegraphai
+playwright

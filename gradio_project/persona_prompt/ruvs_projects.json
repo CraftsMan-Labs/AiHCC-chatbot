@@ -1,0 +1,48 @@
+{
+    "projects": [
+      {
+        "Name": "agentic-voice",
+        "Description": "Agentic Chat App is an advanced AI-powered chat application designed for seamless real-time communication and intelligent responses. Built with Next.js, OpenAI, and Exa API, it leverages cutting-edge technologies."
+      },
+      {
+        "Name": "agentic-reports",
+        "Description": ""
+      },
+      {
+        "Name": "agentic-employment",
+        "Description": "The first platform designed to empower organizations by automating and enhancing their employment processes through advanced autonomous agents."
+      },
+      {
+        "Name": "ruvnet",
+        "Description": "ruvnet."
+      },
+      {
+        "Name": "markov-chains",
+        "Description": ""
+      },
+      {
+        "Name": "pygentic",
+        "Description": "Pygentic is an innovative system designed to enhance the capabilities of AI assistants by providing a flexible and standardized API."
+      },
+      {
+        "Name": "codecraft",
+        "Description": "CodeCraft is a powerful command-line interface (CLI) tool that simplifies the installation and configuration of OpenDevin, an AI-driven coding assistant. With CodeCraft, you can easily set up and c\u2026"
+      },
+      {
+        "Name": "q-space",
+        "Description": "Q-Space, a cutting-edge deployment wizard designed to simplify the process of setting up and managing quantum computing applications using Azure Quantum and Azure Functions."
+      },
+      {
+        "Name": "pipackager",
+        "Description": "pipackager is a tool to manage your PyPI package, including cleaning old distributions, building new ones, uploading to PyPI, version incrementing, and more."
+      },
+      {
+        "Name": "ai-gist",
+        "Description": "This project provides a FastAPI application to create and update GitHub gists using the GitHub API. It includes SQLite for persistence and is designed to run in a GitHub Codespace."
+      },
+      {
+        "Name": "supa-ruv",
+        "Description": "Everything you need to use Supabase + Ai"
+      }
+    ]
+  }

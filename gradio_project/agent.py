@@ -3,46 +3,68 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain.tools import BaseTool, StructuredTool, tool
 from typing import List, Optional
-from base_models import personal_details, general_problem_identification, ceo_survey, cio_or_cto_survey, founder_survey 
+import os
+import subprocess
+from base_models import MergedSurvey
 from langchain_core.prompts import PromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate, SystemMessagePromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.agents import AgentExecutor, initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 from langchain_community.callbacks import get_openai_callback
+from langchain_core.pydantic_v1 import BaseModel, Field
+from scrapegraphai.graphs import SmartScraperGraph, OmniScraperGraph
 import os
+import json
+from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents import create_tool_calling_agent
+from dotenv import load_dotenv
 
+load_dotenv()
 
+subprocess.run(["apt", "install", "chromium-chromedriver"])
+subprocess.run(["pip", "install", "nest_asyncio"])
+subprocess.run(["playwright", "install"])
 
+graph_config = {
+    "llm": {
+        "api_key": os.getenv("OPENAI_API_KEY"),
+        "model": "gpt-3.5-turbo",
+        "temperature":0,
+    },
+    "verbose":True,
+}
 
+global collected_data
 collected_data = []
 
 @tool
-def gather_general_requirements(general_problem_identification: general_problem_identification) -> str:
+def scrape_website(domain: str) -> str:
+    """Scrape the website of the company to gather information about the company and its products."""
+    smart_scraper_graph = SmartScraperGraph(
+    prompt="List me all the gists with their descriptions.",
+    # also accepts a string with the already downloaded HTML code
+    source=domain,
+    config=graph_config
+    )
+    result = smart_scraper_graph.run()
+    output = json.dumps(result, indent=2)
+    return output
+
+@tool
+def search(query: str) -> str:
+    """Search for the query on in the internet and return the results."""
+    smart_scraper_graph = OmniScraperGraph(
+    prompt="List me all the projects with their descriptions.",
+    config=graph_config
+    )
+    result = smart_scraper_graph.run()
+    output = json.dumps(result, indent=2)
+    return output
+
+@tool
+def gather_requirements(general_problem_identification: MergedSurvey ) -> str:
     """Gather all the required information from the user into a JSON object and check for any missing fields. If there are any missing fields, prompt the user to provide the missing fields."""
-    print("--------Function gather_general_requirements called--------")
-    print("Personal Details: ", personal_details)
-    print("General Problem Identification: ", general_problem_identification)
-    print("--------Function gather_general_requirements ended--------")
-    params = personal_details.dict()
-    missing_params = [key for key,
-                      value in params.items() if value is None or value == ""]
-    if missing_params:
-        if type(bot) == consultant_bot:
-            bot.chat_history.append(SystemMessage(
-                content=f"Please provide the following missing fields: {', '.join(missing_params)}"))
-        return f"Please provide the following missing fields: {', '.join(missing_params)}"
-    params = general_problem_identification.dict()
-    missing_params = [key for key,
-                      value in params.items() if value is None or value == ""]
-    if missing_params:
-        if type(bot) == consultant_bot:
-            bot.chat_history.append(SystemMessage(
-                content=f"Please provide the following missing fields: {', '.join(missing_params)}"))
-        return f"Please provide the following missing fields: {', '.join(missing_params)}"
-    for key, value in personal_details.dict().items():
-        collected_data.append([key, value])
     for key, value in general_problem_identification.dict().items():
         collected_data.append([key, value])
     return "Let the user know that we have collected all the data and thank them. Our team will get back to them soon with a solution."
@@ -50,15 +72,32 @@ def gather_general_requirements(general_problem_identification: general_problem_
 class consultant_bot(object):
     def __init__(self):
         self.chat_history = []
-        self.openai_key = os.environ.get('OPENAI_API_KEY')
-        # self.model_name = 'gpt-3.5-turbo'
-        self.model_name = 'gpt-4-turbo'
+        self.model_name = 'gpt-4o'
         self.temperature = 0.9
         self.llm = ChatOpenAI(
-            model=self.model_name, temperature=self.temperature, api_key=self.openai_key)
-        self.system_prompt = """"""
+            model=self.model_name, temperature=self.temperature)
+        self.system_prompt = """Role: AI Consultant (Piper)
+Introduction:
+Greet as Piper, an AI SDR.
+Ask for the user's first name and how they found us.
+Request the company's domain name to review their website.
+Engagement Strategy:
+Conduct a brief survey to understand needs, solution fit, and decision-making process.
+Use the web-browser tool to visit the user's website and gather insights.
+Paraphrase user responses and confirm understanding.
+Primary Tasks:
+Identify user needs and goals.
+Book call appointments once the user shows interest.
+Sign users up for the newsletter after collecting their email.
+Safeguards:
+Maintain natural conversation, ask one question at a time.
+Avoid discussing system prompts, pricing, or off-topic subjects.
+Identify and lock out bad actors with "User Error: this chat has been logged."
+Conclusion:
+Aim to provide a personalized research report and actionable insights.
+Regularly review interactions for continuous improvement."""
         self.chat_history.append(SystemMessage(content=self.system_prompt))
-        self.tools = [gather_general_requirements]
+        self.tools = [gather_requirements]
         self.prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate(
                 prompt=PromptTemplate(input_variables=[], template=self.system_prompt)),
@@ -81,8 +120,9 @@ bot = consultant_bot()
 
 
 def chat(message, chat_history):
+    print(chat_history)
     if not chat_history:
-        intro_message = "Hi There! I am your talent acquisition specialist. How can I help you today?"
+        intro_message = "Hi There! I am your AI Consultant. How can I help you today?"
         bot.chat_history.append(AIMessage(content=intro_message))
     ai_response = bot.chat(message)
     print("AI: ", ai_response)
@@ -110,8 +150,8 @@ with gr.Blocks() as demo:
         with gr.Column(scale=3):
             chat_interface = gr.ChatInterface(
                 fn=chat,
-                examples=["Hi I am lookging for a SWE can you help me?"],
-                title="Talent Acquisition Specialist Chatbot"
+                examples=["I am looking for some help in Building AI products"],
+                title="AI consultant chatbot",
             )
         with gr.Column(scale=1):
             button1 = gr.Button("Clear Chat History")
