@@ -48,13 +48,14 @@ def create_custom_function(num_subqueries):
 
     return [custom_function]
 
+
 def generate_subqueries_from_topic(topic, num_subqueries=6):
     print(f" ")
     print(f"🌿 Generating subqueries from topic: {topic}")
     content = f"I'm going to give you a topic I want to research. I want you to generate {num_subqueries} interesting, diverse search queries that would be useful for generating a report on my main topic. Here is the main topic: {topic}."
     custom_functions = create_custom_function(num_subqueries)
     completion = openai.chat.completions.create(
-        model='gpt-4o',
+        model='gpt-3.5-turbo',
         messages=[{"role": "user", "content": content}],
         temperature=0,
         functions=custom_functions,
@@ -64,62 +65,26 @@ def generate_subqueries_from_topic(topic, num_subqueries=6):
     subqueries = list(json_response.values())
     return subqueries
 
-def exa_search_each_subquery(subqueries):
-    print(f"")
-    print(f"⌛ Searching each subquery")
-    list_of_query_exa_pairs = []
-    one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    for query in subqueries:
-        search_response = exa.search_and_contents(
-            query,
-            num_results=5,
-            use_autoprompt=True,
-            start_published_date=one_week_ago,
-            text=True,
-            highlights={"num_sentences": 5},
-        )
-        query_object = {
-            'subquery': query,
-            'results': search_response.results
-        }
-        list_of_query_exa_pairs.append(query_object)
-    return list_of_query_exa_pairs
+def search_subqueries(subqueries):
+    print(f" ")
+    print(f"🔍 Searching subqueries")
+    search = DuckDuckGoSearchRun()
+    results = []
+    for subquery in subqueries:
+        result = search.run(f"Can you search about this and give more details:{subquery}")
+        results.append(result)
+    return results
 
-def format_exa_results_for_llm(list_of_query_exa_pairs):
-    print(f"")
-    print(f"⌨️  Formatting Exa results for LLM")
-    formatted_string = ""
-    for i in list_of_query_exa_pairs:
-        formatted_string += f"[{i['subquery']}]:\n"
-        for result in i['results']:
-            content = result.text if result.text else " ".join(result.highlights)
-            publish_date = result.published_date
-            formatted_string += f"URL: {result.url}\nContent: {content}\nPublish Date: {publish_date}\n"
-        formatted_string += "\n"
-    return formatted_string
-
-def generate_report_from_exa_results(topic, list_of_query_exa_pairs):
-    print(f"Generating report from Exa results for topic: {topic}")
-    formatted_exa_content = format_exa_results_for_llm(list_of_query_exa_pairs)
-    content = (f"Write a comprehensive and professional three paragraph research report about {topic} based on the provided information. "
-               f"Include citations in the text using footnote notation ([citation #]), for example [2]. First provide the report, followed by a single `References` section "
-               f"that only lists the URLs (and their published date) used, in the format [#] . For the published date, only include the month and year. "
-               f"Reset the citations index and ignore the order of citations in the provided information. Here is the information: {formatted_exa_content}.")
-    completion = openai.chat.completions.create(
-        model='gpt-4o',
-        messages=[{"role": "user", "content": content}]
-    )
-    report = completion.choices[0].message.content
-    return report
 
 @tool
 def search_internet(query: str) -> str:
     """Scrape the website to gather information. It can also be used or github or any URL"""
     print(f"Starting report generation for topic: {query}")
-    subqueries = generate_subqueries_from_topic(query)
-    list_of_query_exa_pairs = exa_search_each_subquery(subqueries)
-    report = generate_report_from_exa_results(query, list_of_query_exa_pairs)
-    return report
+    # subqueries = generate_subqueries_from_topic(query)
+    results = search_subqueries([query])
+    results = "\n".join(results)
+    return results
+
 
 
 @tool
@@ -127,7 +92,7 @@ def gather_requirements(general_problem_identification: MergedSurvey) -> str:
     """Gather all the required information from the user into a JSON object and check for any missing fields. If there are any missing fields, prompt the user to provide the missing fields."""
     for key, value in general_problem_identification.dict().items():
         # update if key os not present or key value is none
-        if key not in collected_data or collected_data[key] is None:
+        if key not in collected_data:
             collected_data[key] = value
     return ""
 
@@ -156,7 +121,9 @@ improve their sales process
 improve their company structure
 imporove their strategies
 strategic_leadership
-talent_management"""
+talent_management
+
+Gather users email id"""
         self.chat_history.append(SystemMessage(content=self.system_prompt))
         self.tools = [gather_requirements, search_internet]
         self.prompt = ChatPromptTemplate.from_messages([

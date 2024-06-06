@@ -3,3 +3,4 @@ langchain
 openai
 python-dotenv
 exa_py
+duckduckgo-search
