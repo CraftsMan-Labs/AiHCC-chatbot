@@ -1,4 +1,4 @@
-AI Adoption and Implementation Pre-Meeting Questionnaire
+general_prompt = '''AI Adoption and Implementation Pre-Meeting Questionnaire
 
 Please number each of the following statements (highlighted section) on a scale of 1 through 5 (1 being not a problem for us, no impact: 5 being a serious problem, big impact. Also, just cross out those that are not applicable)
 
@@ -63,4 +63,4 @@ Strategies
 
 No Problem         Major Problem
 
-1  2  3  4  5
+1  2  3  4  5'''

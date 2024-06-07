@@ -1,4 +1,4 @@
-AI Adoption and Implementation Pre-Meeting Questionnaire for CEOs
+ceo_prompt = '''AI Adoption and Implementation Pre-Meeting Questionnaire for CEOs
 Please number each of the following statements (highlighted section) on a scale of 1 through 5 (1
 being not a problem for us, no impact: 5 being a serious problem, big impact. Also, just cross out
 those that are not applicable)
@@ -53,4 +53,4 @@ Additional Comments
 Please provide any additional comments or specific areas where you need support with AI adoption
 and implementation:
 This version targets a CEO with a Dominance (D) DISC persona, focusing on clear, results-oriented
-language and emphasizing control, leadership, and competitive advantage.
+language and emphasizing control, leadership, and competitive advantage.'''

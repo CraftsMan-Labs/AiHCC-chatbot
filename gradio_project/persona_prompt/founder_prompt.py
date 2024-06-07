@@ -1,4 +1,4 @@
-Principled AI Adoption and Implementation Pre-Meeting Questionnaire for Mid-Market
+founder_prompt = '''Principled AI Adoption and Implementation Pre-Meeting Questionnaire for Mid-Market
 Founders
 Please number each of the following statements (highlighted section) on a scale of 1 through 5 (1
 being not a problem for us, no impact: 5 being a serious problem, big impact. Also, just cross out
@@ -56,4 +56,4 @@ and implementation:
 This version is designed for a mid-market founder-led company with high growth potential,
 emphasizing the importance of principles, long-term vision, and practical steps, while maintaining the
 supportive and structured tone associated with a high Steadiness (S) profile with Dominance (D)
-traits.
+traits.'''

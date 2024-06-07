@@ -1,4 +1,4 @@
-Here is the refined version of the questionnaire tailored for a CIO/CTO with a high Compliance (C)
+cio_prompt = '''Here is the refined version of the questionnaire tailored for a CIO/CTO with a high Compliance (C)
 DISC-based persona, emphasizing detail, accuracy, and systematic approaches:
 AI Adoption and Implementation Pre-Meeting Questionnaire for CIOs/CTOs
 Please number each of the following statements (highlighted section) on a scale of 1 through 5 (1
@@ -55,4 +55,4 @@ Additional Comments
 Please provide any additional comments or specific areas where you need support with AI adoption
 and implementation:
 This version is designed for a CIO/CTO with a high Compliance (C) DISC profile, focusing on
-detailed, accurate, and systematic approaches to AI adoption and implementation.
+detailed, accurate, and systematic approaches to AI adoption and implementation.'''
