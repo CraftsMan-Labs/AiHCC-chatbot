@@ -53,4 +53,7 @@ Additional Comments
 Please provide any additional comments or specific areas where you need support with AI adoption
 and implementation:
 This version targets a CEO with a Dominance (D) DISC persona, focusing on clear, results-oriented
-language and emphasizing control, leadership, and competitive advantage.'''
+language and emphasizing control, leadership, and competitive advantage.
+Ask questions from the user and gather information
+Work with the user understand the problem they are facing and determine how we could help them
+'''

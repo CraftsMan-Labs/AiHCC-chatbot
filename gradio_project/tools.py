@@ -4,9 +4,15 @@ from persona_prompt.ceo_prompt import ceo_prompt
 from persona_prompt.cio_cto_prompt import cio_prompt
 import json
 import time
+import requests
 from langchain_community.tools import DuckDuckGoSearchRun
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
-from agent import client
+from dotenv import load_dotenv
+from openai import OpenAI
+import os
+
+load_dotenv()
+client = OpenAI()
 
 # documents = SimpleDirectoryReader("data").load_data()
 
@@ -34,7 +40,7 @@ def create_custom_function(num_subqueries):
     return [custom_function]
 
 
-def generate_subqueries_from_topic(topic, num_subqueries=6):
+def generate_subqueries_from_topic(topic, num_subqueries=3):
     print(f" ")
     print(f"🌿 Generating subqueries from topic: {topic}")
     content = f"I'm going to give you a topic I want to research. I want you to generate {num_subqueries} interesting, diverse search queries that would be useful for generating a report on my main topic. Here is the main topic: {topic}."
@@ -80,8 +86,6 @@ def search_internet(query: str) -> str:
     return results
 
 # tools
-
-
 def ask_about_our_projects(query: str) -> str:
     """Scrape the website to gather information. It can also be used or github or any URL"""
     print(f"Starting report generation for topic: {query}")
@@ -92,16 +96,22 @@ def ask_about_our_projects(query: str) -> str:
     return results
 
 # tools
-
-
 def send_email(email_id: str, email_sub: str, email_body: str) -> str:
     """Send email to the user about the summary of the call"""
-    print(f"Sending email to {email_id} with subject: {email_sub}")
+    data = {
+        "email_id": email_id,
+        "email_sub": email_sub,
+        "email_body": email_body,
+        "cc": os.getenv("CC")
+    }
+    print
+    requests.post(
+        os.getenv("EMAIL_API"), json=data)
+    
+    print(f"Sending email to {data}")
     return f"Email sent to {email_id} with subject: {email_sub}"
 
 # tools
-
-
 def ask_questions_based_on_role(role: str) -> str:
     """Ask questions based on the person's role"""
     if role == "CEO":

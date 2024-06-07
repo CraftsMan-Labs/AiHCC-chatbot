@@ -55,4 +55,7 @@ Additional Comments
 Please provide any additional comments or specific areas where you need support with AI adoption
 and implementation:
 This version is designed for a CIO/CTO with a high Compliance (C) DISC profile, focusing on
-detailed, accurate, and systematic approaches to AI adoption and implementation.'''
+detailed, accurate, and systematic approaches to AI adoption and implementation.
+Ask questions from the user and gather information
+Work with the user understand the problem they are facing and determine how we could help them
+'''

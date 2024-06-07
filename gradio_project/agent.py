@@ -1,11 +1,11 @@
 import gradio as gr
 import json
 from persona_prompt.system_prompt import system_prompt
-from tools import search_internet,\
-                    ask_about_our_projects,\
-                    send_email,\
-                    ask_questions_based_on_role,\
-                    tools_list 
+from tools import search_internet, \
+    ask_about_our_projects, \
+    send_email, \
+    ask_questions_based_on_role, \
+    tools_list
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -13,14 +13,11 @@ load_dotenv()
 
 client = OpenAI()
 
-global collected_data
-collected_data = {}
-
 
 class consultant_bot(object):
     def __init__(self):
         self.model_name = 'gpt-4o'
-        self.temperature = 0.9
+        self.temperature = 0.8
         self.system_prompt = system_prompt
 
         self.tools = tools_list
@@ -42,7 +39,7 @@ class consultant_bot(object):
                 "role": "assistant",
                 "content": ai_message
             })
-            
+
         bot_chat_history.append({
             "role": "user",
             "content": user_input
@@ -59,7 +56,8 @@ class consultant_bot(object):
         print("Entire response: ", completion)
         # check for function call
         if completion.choices[0].message.function_call is not None:
-            print("function_call: ", completion.choices[0].message.function_call.name)
+            print("function_call: ",
+                  completion.choices[0].message.function_call.name)
             arguments = completion.choices[0].message.function_call.arguments
             arguments = json.loads(arguments)
             if completion.choices[0].message.function_call.name == 'search_internet':
@@ -67,10 +65,11 @@ class consultant_bot(object):
             elif completion.choices[0].message.function_call.name == 'ask_about_our_projects':
                 response = ask_about_our_projects(arguments['query'])
             elif completion.choices[0].message.function_call.name == 'send_email':
-                response = send_email(arguments['email_id'], arguments['email_sub'], arguments['email_body'])
+                response = send_email(
+                    arguments['email_id'], arguments['email_sub'], arguments['email_body'])
             elif completion.choices[0].message.function_call.name == 'ask_questions_based_on_role':
                 response = ask_questions_based_on_role(arguments['role'])
-            
+
             # add the response to chat history
             print("tool_response: ", response)
             bot_chat_history.append({
@@ -101,21 +100,20 @@ def chat(message, chat_history):
     return ai_response
 
 
-def clear_chat_history():
-    global collected_data
-    collected_data = {}
-    bot.chat_history = []
-
-
-def display_data():
-    return collected_data
-
-
 with gr.Blocks() as demo:
     chat_interface = gr.ChatInterface(
         fn=chat,
         examples=["I am looking for some help in Building AI products", "I need someone to help me with my AI project",
-                    "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
+                  "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
         title="AI consultant chatbot",
     )
+    # add some buttons and hyper links
+    # RuVs projects https://github.com/ruvnet
+    # AI Hackerspace https://aihackerspace.com/
+    # AI Hackerspace schedule a call https://aihackerspace.com/schedule
+    buttons = gr.HTML(
+        '''<a href='www.aihackerspace.com'>AI Hackerspace</a> 
+        <a href="www.aihackerspace.com/schedule">Schedule a call</a>
+        <a href="https://github.com/ruvnet">RuVs projects</a>''')
+    
 demo.launch()
