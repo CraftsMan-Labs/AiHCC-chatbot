@@ -64,6 +64,6 @@ Strategies
 No Problem         Major Problem
 
 1  2  3  4  5
-Ask questions from the user and gather information
+Ask questions one by one from the user and gather information
 Work with the user understand the problem they are facing and determine how we could help them
 '''
