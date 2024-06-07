@@ -91,6 +91,19 @@ class consultant_bot(object):
 
 bot = consultant_bot()
 
+css = """
+.gradio-container {
+    height: 100vh !important;
+    width: 100vw !important;
+    display: flex;
+    flex-direction: column;
+}
+#component-0 {
+    flex-grow: 1;
+    overflow: auto;
+}
+"""
+
 
 def chat(message, chat_history):
     print("Human: ", message)
@@ -99,13 +112,13 @@ def chat(message, chat_history):
     print("AI: ", ai_response)
     return ai_response
 
-
 with gr.Blocks() as demo:
     chat_interface = gr.ChatInterface(
         fn=chat,
         examples=["I am looking for some help in Building AI products", "I need someone to help me with my AI project",
                   "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
         title="AI consultant chatbot",
+        css=css
     )
     # add some buttons and hyper links
     # RuVs projects https://github.com/ruvnet
@@ -115,5 +128,5 @@ with gr.Blocks() as demo:
         '''<a href='www.aihackerspace.com'>AI Hackerspace</a> 
         <a href="www.aihackerspace.com/schedule">Schedule a call</a>
         <a href="https://github.com/ruvnet">RuVs projects</a>''')
-    
-demo.launch()
+
+demo.launch(inline=False)
