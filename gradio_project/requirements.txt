@@ -6,3 +6,4 @@ exa_py
 duckduckgo-search
 llamaindex 
 deepgram-sdk
+langchain

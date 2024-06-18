@@ -104,7 +104,7 @@ with gr.Blocks() as demo:
         fn=chat,
         examples=["I am looking for some help in Building AI products", "I need someone to help me with my AI project",
                   "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
-        title="AI consultant chatbot"
+        title="Strategix"
     )
     buttons = gr.HTML(
         '''<a href='www.aihackerspace.com'>AI Hackerspace</a> 
