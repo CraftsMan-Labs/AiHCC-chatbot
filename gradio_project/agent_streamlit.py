@@ -1,4 +1,4 @@
-import gradio as gr
+import streamlit as st
 import json
 from persona_prompt.system_prompt import system_prompt
 from tools import search_internet, \
@@ -99,16 +99,31 @@ def chat(message, chat_history):
     print("AI: ", ai_response)
     return ai_response
 
-with gr.Blocks() as demo:
-    chat_interface = gr.ChatInterface(
-        fn=chat,
-        examples=["I am looking for some help in Building AI products", "I need someone to help me with my AI project",
-                  "I am looking for some help in AI consulting", "I need help in AI consulting", "I need someone build my startup MVP"],
-        title="Strategix"
-    )
-    buttons = gr.HTML(
-        '''<a href='www.aihackerspace.com'>AI Hackerspace</a> 
-        <a href="www.aihackerspace.com/schedule">Schedule a call</a>
-        <a href="https://github.com/ruvnet">RuVs projects</a>''')
+st.title("Strategix")
 
-demo.launch(inline=False)
+st.markdown(
+    """
+    <a href='www.aihackerspace.com'>AI Hackerspace</a> 
+    <a href="www.aihackerspace.com/schedule">Schedule a call</a>
+    <a href="https://github.com/ruvnet">RuVs projects</a>
+    """,
+    unsafe_allow_html=True
+)
+
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+
+user_input = st.text_input("You: ", "")
+
+if st.button("Send"):
+    if user_input:
+        st.session_state["chat_history"].append(("user", user_input))
+        ai_response = chat(user_input, st.session_state["chat_history"])
+        st.session_state["chat_history"].append(("assistant", ai_response))
+
+if st.session_state["chat_history"]:
+    for i, (role, message) in enumerate(st.session_state["chat_history"]):
+        if role == "user":
+            st.text(f"User: {message}")
+        else:
+            st.text(f"Assistant: {message}")
