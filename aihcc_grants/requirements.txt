@@ -1,8 +1,0 @@
-openai
-langchain
-langchain-community
-langchain-openai==0.1.6
-streamlit
-python-dotenv
-requests
-sqlalchemy
